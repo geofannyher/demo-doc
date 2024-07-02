@@ -15,7 +15,7 @@ const LoginAdmin = () => {
     const pass = import.meta.env.VITE_APP_PASS_ADMIN;
     if (event.target[0]?.value == pass) {
       navigate("/adminavatara");
-      localStorage.setItem("role", "admin");
+      localStorage.setItem("role", "adminlapor");
       setLoading(false);
     } else {
       setLoading(false);

@@ -1,8 +1,8 @@
-import React, { useEffect, useRef, useState } from "react";
-import axios from "axios";
+import { useEffect, useRef, useState } from "react";
 import { LuArrowDown } from "react-icons/lu";
 import { getIdSession } from "../../services/supabase/session.service";
 import { notification } from "antd";
+import { getHistoryChats } from "../../services/api/history.service";
 
 const AdminChat = () => {
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
@@ -14,7 +14,7 @@ const AdminChat = () => {
   const getIdUser = async () => {
     const resses = await getIdSession();
     if (resses?.status == 200) {
-      fetchChatHistory(resses?.data?.localid);
+      fetchChatHistory();
     } else {
       api.error({ message: "Gagal mendapatkan id user" });
     }
@@ -33,81 +33,54 @@ const AdminChat = () => {
     }
   };
 
-  const fetchChatHistory = async (id: string) => {
+  const fetchChatHistory = async () => {
     try {
       setLoading(true);
-      const res = await axios.post(import.meta.env.VITE_APP_CHATT + "history", {
-        id: id,
-        star: "pdteras",
-      });
-
-      const konteksMessage = res?.data?.data?.history[1]?.content;
-
-      const userMessages = res.data.data.coversation?.user.map(
-        (message: string, index: number) => ({
-          sender: "user",
-          message,
-          index,
-        })
-      );
-      const aiMessages = res.data.data.coversation?.ai.map(
-        (message: string, index: number) => ({
-          sender: "ai",
-          message,
-          konteksMessage:
-            index === res.data.data.coversation?.ai.length - 1 &&
-            konteksMessage,
-          index,
-        })
-      );
-
-      // Gabungkan pesan user dan pesan AI ke dalam satu array
-      const newConversation = [...userMessages, ...aiMessages];
-
-      newConversation.sort((a, b) => a.index - b.index);
-
-      setChatHistory(newConversation);
+      const res = await getHistoryChats();
+      setChatHistory(res?.data);
       setLoading(false);
-    } catch (error: any) {
-      console.error("Error fetching chat history:", error.message);
+    } catch (error) {
+      setLoading(false);
+      console.log(error);
     }
   };
 
   useEffect(() => {
     getIdUser();
-  }, []); // Panggil fetchChatHistory saat komponen dimuat
+  }, []);
 
   useEffect(() => {
-    scrollToBottom(); // Panggil scrollToBottom setelah chat history diperbarui
-  }, [chatHistory]); // Panggil saat chatHistory berubah
+    scrollToBottom();
+  }, [chatHistory]);
 
-  const handleSearch = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleSearch = (event: any) => {
     setSearchKeyword(event.target.value);
   };
 
   const renderHighlightedText = (text: string) => {
-    if (!searchKeyword.trim()) return text; // Jika kata kunci pencarian kosong, kembalikan teks asli
+    if (!searchKeyword.trim()) return text;
 
-    const regex = new RegExp(`(${searchKeyword.trim()})`, "gi"); // Buat ekspresi reguler dari kata kunci pencarian (global dan case-insensitive)
-    const parts = text.split(regex); // Pisahkan teks berdasarkan kata kunci pencarian
+    const regex = new RegExp(`(${searchKeyword.trim()})`, "gi");
+    const parts = text.split(regex);
 
-    return parts.map((part, index) => {
+    return parts.map((part: string, index: number) => {
       if (regex.test(part)) {
-        // Bagian ini adalah bagian teks yang cocok dengan kata kunci (disorot)
         return (
-          <span key={index} className="bg-yellow-200 border p-1">
+          <span
+            key={index}
+            className="bg-mainColor text-white rounded-md border p-1"
+          >
             {part}
           </span>
         );
       } else {
-        // Bagian ini adalah bagian teks asli (tidak cocok dengan kata kunci)
         return <span key={index}>{part}</span>;
       }
     });
   };
 
   const filteredChatHistory = chatHistory.filter((message) =>
-    message.message.toLowerCase().includes(searchKeyword.toLowerCase())
+    message.text.toLowerCase().includes(searchKeyword.toLowerCase())
   );
 
   return (
@@ -143,10 +116,14 @@ const AdminChat = () => {
                   message.sender === "user" ? "mr-2" : "ml-2"
                 } bg-gray-300`}
               >
-                {renderHighlightedText(message.message)}
                 <div className="text-sm font-semibold">
-                  {message?.konteksMessage &&
-                    `KONTEKS : ${message?.konteksMessage}`}
+                  ID User : {message?.localid}
+                  <br />
+                </div>
+                {renderHighlightedText(message.text)}
+                <div className="text-sm font-semibold">
+                  <br />
+                  {message?.konteks && message?.konteks}
                 </div>
               </div>
             </div>
@@ -156,7 +133,7 @@ const AdminChat = () => {
       </div>
       <button
         onClick={scrollToBottom}
-        className="fixed bottom-10 right-10 bg-[#5751c8] hover:bg-[#5751c8] transition duration-500 hover:scale-105 text-white px-4 py-2 rounded-full shadow-lg"
+        className="fixed bottom-10 right-10 bg-mainColor hover:bg-red-500 transition duration-500 hover:scale-105 text-white px-4 py-2 rounded-full shadow-lg"
       >
         <LuArrowDown />
       </button>

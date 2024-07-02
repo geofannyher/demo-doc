@@ -9,6 +9,9 @@ import { getIdSession } from "../services/supabase/session.service";
 import { chatRes } from "../services/api/chat.services";
 import notificationSound from "../assets/notif.mp3";
 import { getSession } from "../shared/Session";
+// import axios from "axios";
+// import { supabase } from "../services/supabase/connection";
+// import { cleanString } from "../utils/cleanString";
 const ChatPage: React.FC = () => {
   const [messages, setMessages] = useState<IMessage[]>([]);
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -33,6 +36,7 @@ const ChatPage: React.FC = () => {
     const resses = await getIdSession();
     if (resses?.status == 200) {
       setId(resses?.data?.uuid);
+      console.log(resses);
     } else {
       return api.error({ message: "Gagal mendapatkan id user" });
     }
@@ -40,21 +44,12 @@ const ChatPage: React.FC = () => {
 
   useEffect(() => {
     setTimeout(() => {
-      if (session == "gpt_article") {
-        setMessages([
-          {
-            text: "Silakan kirimkan artikel berita disini, agar bisa segera kami proses",
-            sender: "ai",
-          },
-        ]);
-      } else {
-        setMessages([
-          {
-            text: "Silakan kirimkan konten media sosial disini, agar bisa segera kami proses.",
-            sender: "ai",
-          },
-        ]);
-      }
+      setMessages([
+        {
+          text: "Halo! ,Selamat datang di Layanan Aspirasi dan Pengaduan Online Rakyat.",
+          sender: "ai",
+        },
+      ]);
     }, 700);
     getIdUser();
   }, [session]);
@@ -65,16 +60,13 @@ const ChatPage: React.FC = () => {
 
   const handleForm = async (event: any) => {
     event.preventDefault();
-    const idSession = getSession();
 
     const messageInput = event?.target[0]?.value.trim();
     event.target[0].value = "";
     if (!messageInput) {
       return api.error({ message: "Kolom pesan tidak boleh kosong" });
     }
-    if (!idSession) {
-      return api.error({ message: "Model tidak boleh kosong" });
-    }
+
     setIsLoading(true);
     const userMessage = { text: messageInput, sender: "user" };
 
@@ -85,11 +77,32 @@ const ChatPage: React.FC = () => {
 
     const resNew: any = await chatRes({
       message: messageInput,
-      star: idSession ? idSession : "",
+      star: "ai_lapor",
       id: idUserSession ? idUserSession : "",
       model: "gpt-4o",
       is_rag: "false",
     });
+
+    // const res = await axios.post(import.meta.env.VITE_APP_CHATT + "history", {
+    //   id: idUserSession,
+    //   star: "ai_lapor",
+    // });
+
+    // const cleanedKonteks = cleanString(res?.data?.data?.history[1]?.content);
+
+    // await supabase.from("chats").upsert([
+    //   {
+    //     text: messageInput,
+    //     sender: "user",
+    //     localid: idUserSession,
+    //   },
+    //   {
+    //     text: cleanedKonteks || "AI tidak merespon",
+    //     sender: "ai",
+    //     konteks: cleanedKonteks,
+    //     localid: idUserSession,
+    //   },
+    // ]);
 
     if (resNew && resNew?.data?.data) {
       setMessages((prevMessages: any) => {
@@ -98,6 +111,7 @@ const ChatPage: React.FC = () => {
           { text: resNew?.data?.data || "AI tidak merespon", sender: "ai" },
         ];
       });
+
       const audio = new Audio(notificationSound);
       audio.play();
     }

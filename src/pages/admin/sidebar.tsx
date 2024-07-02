@@ -37,7 +37,7 @@ const Sidebar = () => {
   ];
 
   return (
-    <div className="bg-[#5751c8] w-20 p-2 flex flex-col items-center justify-between h-screen text-white">
+    <div className="bg-mainColor w-20 p-2 flex flex-col items-center justify-between h-screen text-white">
       <div className="py-4">
         <h1
           className="font-bold cursor-pointer hover:text-gray-300 duration-300 transition text-sm"
@@ -52,8 +52,8 @@ const Sidebar = () => {
                 <div
                   className={`p-2 rounded-lg flex justify-center  ${
                     location.pathname === item.to
-                      ? "bg-indigo-800"
-                      : "hover:bg-gray-700 transition duration-500 hover:scale-105"
+                      ? "bg-red-400"
+                      : "hover:bg-red-400 transition duration-500 hover:scale-105"
                   }`}
                 >
                   {item?.icon}
