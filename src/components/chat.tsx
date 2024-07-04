@@ -3,24 +3,73 @@ import ai from "../assets/image.jpeg";
 import Markdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { useEffect, useState } from "react";
+import axios from "axios";
+import { chatRes } from "../services/api/chat.services";
+import { TUploadFileProps } from "../utils/types/uploadFile.type";
+import { submitData } from "../lib/uploadData";
 
-export const AiChat = ({ message }: TChatProps) => {
+export const AiChat = ({
+  message,
+  isLastAIChat,
+  onFileUploadSuccess,
+}: TChatProps & {
+  isLastAIChat: boolean;
+  onFileUploadSuccess: ({ msg, fileUrl }: TUploadFileProps) => void;
+}) => {
   const [displayedMessage, setDisplayedMessage] = useState("");
+
+  const handleFileUpload = async (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("upload_preset", "demolapor");
+
+    try {
+      const response = await axios.post(
+        "https://api.cloudinary.com/v1_1/dp8ita8x5/upload",
+        formData
+      );
+      const chatResponse = await chatRes({
+        message: "saya sudah upload",
+        star: "ai_lapor",
+        id: "dev",
+        model: "gpt-4o",
+        is_rag: "false",
+      });
+      onFileUploadSuccess({
+        fileUrl: response?.data?.secure_url,
+        msg: chatResponse,
+      });
+    } catch (error) {
+      console.error("Error uploading file:", error);
+    }
+  };
 
   useEffect(() => {
     if (typeof message !== "string") {
       return;
     }
+    const cleanedMessage = message
+      .replace("#upload#", "")
+      .replace("#record#", ""); // Hapus string #upload#
     setDisplayedMessage("");
     let currentIndex = 0;
     const interval = setInterval(() => {
-      if (currentIndex <= message.length) {
-        setDisplayedMessage(message.substring(0, currentIndex));
+      if (currentIndex <= cleanedMessage.length) {
+        setDisplayedMessage(cleanedMessage.substring(0, currentIndex));
         currentIndex++;
       } else {
         clearInterval(interval);
       }
     }, 5);
+
+    if (isLastAIChat && message.includes("#record#")) {
+      submitData({ detail_laporan: message });
+    }
 
     return () => clearInterval(interval);
   }, [message]);
@@ -47,6 +96,15 @@ export const AiChat = ({ message }: TChatProps) => {
             >
               {displayedMessage}
             </Markdown>
+            {isLastAIChat && message.includes("#upload#") && (
+              <div className="flex gap-4">
+                <input
+                  type="file"
+                  onChange={handleFileUpload}
+                  className="mt-2"
+                />
+              </div>
+            )}
           </div>
         </div>
       </div>

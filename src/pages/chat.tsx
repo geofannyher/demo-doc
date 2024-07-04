@@ -9,6 +9,8 @@ import { getIdSession } from "../services/supabase/session.service";
 import { chatRes } from "../services/api/chat.services";
 import notificationSound from "../assets/notif.mp3";
 import { getSession } from "../shared/Session";
+import { supabase } from "../services/supabase/connection";
+import { TUploadFileProps } from "../utils/types/uploadFile.type";
 // import axios from "axios";
 // import { supabase } from "../services/supabase/connection";
 // import { cleanString } from "../utils/cleanString";
@@ -36,9 +38,30 @@ const ChatPage: React.FC = () => {
     const resses = await getIdSession();
     if (resses?.status == 200) {
       setId(resses?.data?.uuid);
-      console.log(resses);
     } else {
       return api.error({ message: "Gagal mendapatkan id user" });
+    }
+  };
+
+  const handleFileUploadSuccess = async ({
+    msg,
+    fileUrl,
+  }: TUploadFileProps) => {
+    if (msg && msg?.data?.data) {
+      const aiMessage = msg?.data?.data || "AI tidak merespon";
+      setMessages((prevMessages: any) => [
+        ...prevMessages,
+        { text: msg?.data?.data || "AI tidak merespon", sender: "ai" },
+      ]);
+      const { data, error } = await supabase
+        .from("laporan")
+        .insert([{ detail_laporan: aiMessage, bukti_laporan: fileUrl }]);
+
+      if (error) {
+        console.error("Error uploading to Supabase:", error);
+      } else {
+        console.log("Uploaded to Supabase:", data);
+      }
     }
   };
 
@@ -134,6 +157,7 @@ const ChatPage: React.FC = () => {
             ) : (
               <AiChat
                 message={message.text}
+                onFileUploadSuccess={handleFileUploadSuccess}
                 isLastAIChat={index === messages.length - 1}
               />
             )}
