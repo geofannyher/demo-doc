@@ -46,7 +46,7 @@ const ChatPage: React.FC = () => {
     setTimeout(() => {
       setMessages([
         {
-          text: "Halo! ,Selamat datang di Layanan Aspirasi dan Pengaduan Online Rakyat.",
+          text: "Halo, Selamat datang di Layanan Aspirasi dan Pengaduan Online Rakyat. Silahkan sampaikan laporan anda.",
           sender: "ai",
         },
       ]);
