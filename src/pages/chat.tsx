@@ -90,6 +90,7 @@ const ChatPage: React.FC = () => {
       message: messageInput,
       star: "ai_lapor",
       id: idUserSession,
+      // id: "dev3",
       model: "gpt-4o",
       is_rag: "false",
     });
@@ -133,7 +134,7 @@ const ChatPage: React.FC = () => {
     scrollToBottom(messagesEndRef);
   }, [messages]);
   const [isLastAIChat, setIsLastAIChat] = useState(false); // State untuk mengelola status pesan AI terakhir
-
+  console.log(isLastAIChat);
   useEffect(() => {
     if (messages.length > 0 && messages[messages.length - 1].sender === "ai") {
       setIsLastAIChat(true);
@@ -163,6 +164,7 @@ const ChatPage: React.FC = () => {
         message: "saya sudah upload",
         star: "ai_lapor",
         id: idUserSession,
+        // id: "dev3",
         model: "gpt-4o",
         is_rag: "false",
       });
@@ -202,24 +204,26 @@ const ChatPage: React.FC = () => {
       </div>
       <div className="container mx-auto w-full p-4 shadow-sm">
         <form onSubmit={handleForm}>
-          <div className="relative flex gap-x-5 justify-between items-center">
-            {isLastAIChat && (
-              <div className="h-1/2">
-                <label htmlFor="file-upload" className="cursor-pointer">
-                  <IoMdAttach
-                    size={5}
-                    className="bg-mainColor w-10 h-10 p-2 shadow-xl rounded-full text-white"
-                  />
-                </label>
-                <input
-                  id="file-upload"
-                  type="file"
-                  disabled={loading}
-                  onChange={handleFileUpload}
-                  className="hidden"
+          <div className="relative flex gap-x-2 justify-between items-center">
+            <div className="w-[12%]">
+              <label
+                htmlFor="file-upload"
+                className="cursor-pointer font-semibold text-xs flex items-center gap-2"
+              >
+                <IoMdAttach
+                  size={5}
+                  className="bg-mainColor w-10 h-10 p-2 shadow-xl rounded-full text-white"
                 />
-              </div>
-            )}
+                upload lampiran
+              </label>
+              <input
+                id="file-upload"
+                type="file"
+                disabled={loading}
+                onChange={handleFileUpload}
+                className="hidden"
+              />
+            </div>
             <input
               type="text"
               id="message"

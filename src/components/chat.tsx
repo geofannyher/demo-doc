@@ -20,11 +20,18 @@ export const AiChat = ({
     if (typeof message !== "string") {
       return;
     }
-    let cleanedMessage = message
-      .replace("#upload#", "Silahkan unggah berkas anda")
-      .replace("#record#", "Silahkan unggah berkas anda"); // Hapus string #upload#
 
-    if (loading) {
+    // Hapus bagian JSON yang dimulai dengan #record# dan diakhiri dengan #/record#
+    let cleanedMessage = message.replace(/#record#.*?#\/record#/gs, "");
+
+    cleanedMessage = cleanedMessage
+      .replace(
+        "#upload#",
+        "silahkan unggah berkas anda melalui menu attach di kiri bawah"
+      )
+      .replace("#record#", ""); // Hapus string #upload#
+
+    if (loading && isLastAIChat) {
       cleanedMessage += "\nSedang mengunggah file...";
     }
 
