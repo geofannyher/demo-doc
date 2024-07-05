@@ -2,6 +2,8 @@ export type TChatProps = {
   message: string;
   isLastAIChat?: any;
   audioUrl?: string;
+  idUser?: string;
+  loading?: boolean;
 };
 export type TChatDataProps = {
   star: string;

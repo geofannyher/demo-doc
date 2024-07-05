@@ -3,59 +3,31 @@ import ai from "../assets/image.jpeg";
 import Markdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { useEffect, useState } from "react";
-import axios from "axios";
-import { chatRes } from "../services/api/chat.services";
-import { TUploadFileProps } from "../utils/types/uploadFile.type";
+// import { TUploadFileProps } from "../utils/types/uploadFile.type";
 import { submitData } from "../lib/uploadData";
 
 export const AiChat = ({
   message,
   isLastAIChat,
-  onFileUploadSuccess,
+  loading,
 }: TChatProps & {
   isLastAIChat: boolean;
-  onFileUploadSuccess: ({ msg, fileUrl }: TUploadFileProps) => void;
+  // onFileUploadSuccess: ({ msg, fileUrl }: TUploadFileProps) => void;
 }) => {
   const [displayedMessage, setDisplayedMessage] = useState("");
-
-  const handleFileUpload = async (
-    event: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    const file = event.target.files?.[0];
-    if (!file) return;
-
-    const formData = new FormData();
-    formData.append("file", file);
-    formData.append("upload_preset", "demolapor");
-
-    try {
-      const response = await axios.post(
-        "https://api.cloudinary.com/v1_1/dp8ita8x5/upload",
-        formData
-      );
-      const chatResponse = await chatRes({
-        message: "saya sudah upload",
-        star: "ai_lapor",
-        id: "dev",
-        model: "gpt-4o",
-        is_rag: "false",
-      });
-      onFileUploadSuccess({
-        fileUrl: response?.data?.secure_url,
-        msg: chatResponse,
-      });
-    } catch (error) {
-      console.error("Error uploading file:", error);
-    }
-  };
 
   useEffect(() => {
     if (typeof message !== "string") {
       return;
     }
-    const cleanedMessage = message
-      .replace("#upload#", "")
-      .replace("#record#", ""); // Hapus string #upload#
+    let cleanedMessage = message
+      .replace("#upload#", "Silahkan unggah berkas anda")
+      .replace("#record#", "Silahkan unggah berkas anda"); // Hapus string #upload#
+
+    if (loading) {
+      cleanedMessage += "\nSedang mengunggah file...";
+    }
+
     setDisplayedMessage("");
     let currentIndex = 0;
     const interval = setInterval(() => {
@@ -72,7 +44,7 @@ export const AiChat = ({
     }
 
     return () => clearInterval(interval);
-  }, [message]);
+  }, [message, loading]);
 
   return (
     <div className="flex justify-start py-2">
@@ -96,15 +68,6 @@ export const AiChat = ({
             >
               {displayedMessage}
             </Markdown>
-            {isLastAIChat && message.includes("#upload#") && (
-              <div className="flex gap-4">
-                <input
-                  type="file"
-                  onChange={handleFileUpload}
-                  className="mt-2"
-                />
-              </div>
-            )}
           </div>
         </div>
       </div>

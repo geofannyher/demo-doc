@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { IoIosSend } from "react-icons/io";
+import { IoIosSend, IoMdAttach } from "react-icons/io";
 import { notification } from "antd";
 import { IMessage } from "../utils/interface/chat.interface";
 import { AiChat, UserChat } from "../components/chat";
@@ -11,8 +11,8 @@ import notificationSound from "../assets/notif.mp3";
 import { getSession } from "../shared/Session";
 import { supabase } from "../services/supabase/connection";
 import { TUploadFileProps } from "../utils/types/uploadFile.type";
-// import axios from "axios";
-// import { supabase } from "../services/supabase/connection";
+import { scrollToBottom } from "../lib/scrollSmooth";
+import axios from "axios";
 // import { cleanString } from "../utils/cleanString";
 const ChatPage: React.FC = () => {
   const [messages, setMessages] = useState<IMessage[]>([]);
@@ -21,18 +21,6 @@ const ChatPage: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [idUserSession, setId] = useState("");
   const session = getSession();
-  const scrollToBottom = () => {
-    if (messagesEndRef.current) {
-      if (
-        "scrollBehavior" in document.documentElement.style &&
-        window.innerWidth > 768
-      ) {
-        messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
-      } else {
-        messagesEndRef.current.scrollIntoView();
-      }
-    }
-  };
 
   const getIdUser = async () => {
     const resses = await getIdSession();
@@ -78,14 +66,14 @@ const ChatPage: React.FC = () => {
   }, [session]);
 
   useEffect(() => {
-    scrollToBottom();
+    scrollToBottom(messagesEndRef);
   }, [messages]);
 
   const handleForm = async (event: any) => {
     event.preventDefault();
 
-    const messageInput = event?.target[0]?.value.trim();
-    event.target[0].value = "";
+    const messageInput = event?.target[1]?.value.trim();
+    event.target[1].value = "";
     if (!messageInput) {
       return api.error({ message: "Kolom pesan tidak boleh kosong" });
     }
@@ -101,7 +89,7 @@ const ChatPage: React.FC = () => {
     const resNew: any = await chatRes({
       message: messageInput,
       star: "ai_lapor",
-      id: idUserSession ? idUserSession : "",
+      id: idUserSession,
       model: "gpt-4o",
       is_rag: "false",
     });
@@ -142,9 +130,53 @@ const ChatPage: React.FC = () => {
   };
 
   useEffect(() => {
-    scrollToBottom();
+    scrollToBottom(messagesEndRef);
   }, [messages]);
+  const [isLastAIChat, setIsLastAIChat] = useState(false); // State untuk mengelola status pesan AI terakhir
 
+  useEffect(() => {
+    if (messages.length > 0 && messages[messages.length - 1].sender === "ai") {
+      setIsLastAIChat(true);
+    } else {
+      setIsLastAIChat(false);
+    }
+  }, [messages]);
+  const [loading, setLoading] = useState(false);
+
+  const handleFileUpload = async (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    if (!idUserSession) return api.error({ message: "gagal mendapatkan id" });
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("upload_preset", "demolapor");
+    setLoading(true);
+    try {
+      const response = await axios.post(
+        "https://api.cloudinary.com/v1_1/dp8ita8x5/upload",
+        formData
+      );
+      const chatResponse = await chatRes({
+        message: "saya sudah upload",
+        star: "ai_lapor",
+        id: idUserSession,
+        model: "gpt-4o",
+        is_rag: "false",
+      });
+      handleFileUploadSuccess({
+        fileUrl: response?.data?.secure_url,
+        msg: chatResponse,
+      });
+      setLoading(false);
+      return api.success({ message: "Berkas Berhasil di unggah" });
+    } catch (error) {
+      setLoading(false);
+      return api.error({ message: "Berkas gagal di unggah" });
+    }
+  };
   return (
     <div className="flex h-screen flex-col bg-white">
       <Navbar />
@@ -157,30 +189,51 @@ const ChatPage: React.FC = () => {
             ) : (
               <AiChat
                 message={message.text}
-                onFileUploadSuccess={handleFileUploadSuccess}
+                idUser={idUserSession}
+                loading={loading}
                 isLastAIChat={index === messages.length - 1}
               />
             )}
           </div>
         ))}
+
         {isLoading && <LoadingComponent />}
         <div ref={messagesEndRef} />
       </div>
       <div className="container mx-auto w-full p-4 shadow-sm">
         <form onSubmit={handleForm}>
-          <div className="relative">
+          <div className="relative flex gap-x-5 justify-between items-center">
+            {isLastAIChat && (
+              <div className="h-1/2">
+                <label htmlFor="file-upload" className="cursor-pointer">
+                  <IoMdAttach
+                    size={5}
+                    className="bg-mainColor w-10 h-10 p-2 shadow-xl rounded-full text-white"
+                  />
+                </label>
+                <input
+                  id="file-upload"
+                  type="file"
+                  disabled={loading}
+                  onChange={handleFileUpload}
+                  className="hidden"
+                />
+              </div>
+            )}
             <input
               type="text"
               id="message"
+              disabled={loading}
               name="message"
-              className="block w-full pr-20 rounded-xl border border-gray-300 bg-gray-50 p-4 text-sm text-gray-900"
+              className="block shadow-md w-full pr-20 rounded-full border border-gray-300 bg-gray-50 p-4 text-sm text-gray-900"
               placeholder="Masukkan pesan anda.."
             />
             <button
               type="submit"
-              className="absolute bottom-2.5 end-2.5 rounded-lg bg-mainColor px-4 py-2 text-sm font-medium text-white shadow-md transition duration-300 hover:bg-hoverBtn"
+              disabled={loading}
+              className="rounded-full bg-mainColor px-4 py-4 text-sm font-medium text-white shadow-md transition duration-300 hover:bg-hoverBtn"
             >
-              <IoIosSend />
+              <IoIosSend size={15} />
             </button>
           </div>
         </form>
