@@ -13,6 +13,7 @@ import { supabase } from "../services/supabase/connection";
 import { TUploadFileProps } from "../utils/types/uploadFile.type";
 import { scrollToBottom } from "../lib/scrollSmooth";
 import axios from "axios";
+import { submitData } from "../lib/uploadData";
 // import { cleanString } from "../utils/cleanString";
 const ChatPage: React.FC = () => {
   const [messages, setMessages] = useState<IMessage[]>([]);
@@ -21,6 +22,8 @@ const ChatPage: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [idUserSession, setId] = useState("");
   const session = getSession();
+  const [loading, setLoading] = useState(false);
+
   const [isLastAIChat, setIsLastAIChat] = useState(false); // State untuk mengelola status pesan AI terakhir
   console.log(isLastAIChat);
 
@@ -39,7 +42,6 @@ const ChatPage: React.FC = () => {
   }: TUploadFileProps) => {
     if (msg && msg?.data?.data) {
       const aiMessage = msg?.data?.data;
-
       const { error } = await supabase
         .from("laporan")
         .insert([{ detail_laporan: aiMessage, bukti_laporan: fileUrl }]);
@@ -74,11 +76,20 @@ const ChatPage: React.FC = () => {
   const handleForm = async (event: any) => {
     event.preventDefault();
 
-    const messageInput = event?.target[0]?.value.trim();
-    event.target[0].value = "";
+    let messageInput: any;
+
+    if (shouldShowFileUpload()) {
+      messageInput = event?.target[1]?.value.trim();
+    } else {
+      messageInput = event?.target[0]?.value.trim();
+    }
+
     if (!messageInput) {
       return api.error({ message: "Kolom pesan tidak boleh kosong" });
     }
+    console.log(messageInput);
+    event.target[0].value = "";
+    event.target[1].value = "";
 
     setIsLoading(true);
     const userMessage = { text: messageInput, sender: "user" };
@@ -143,12 +154,12 @@ const ChatPage: React.FC = () => {
       setIsLastAIChat(false);
     }
   }, [messages]);
-  const [loading, setLoading] = useState(false);
 
   const handleFileUpload = async (
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
     const file = event.target.files?.[0];
+
     if (!file) return;
 
     if (!idUserSession) return api.error({ message: "gagal mendapatkan id" });

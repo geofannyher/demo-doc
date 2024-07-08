@@ -12,7 +12,7 @@ export const submitData = async ({
     .insert([{ detail_laporan, bukti_laporan }]);
 
   if (error) {
-    return error;
+    return { error };
   } else {
     return data;
   }

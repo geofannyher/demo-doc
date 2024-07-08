@@ -21,11 +21,17 @@ export const AiChat = ({
     }
 
     // Hapus bagian JSON yang dimulai dengan #record# dan diakhiri dengan #/record#
-    let cleanedMessage = message.replace(/#record#.*?#\/record#/gs, "");
+    let cleanedMessage = message
+      .replace(/#record1#.*?#\/record1#/gs, "")
+      .replace(/#record2#.*?#\/record2#/gs, "");
 
     cleanedMessage = cleanedMessage
-      .replace("#upload#", "")
-      .replace("#record#", ""); // Hapus string #upload#
+      .replace(
+        "#upload#",
+        "silahkan unggah berkas anda melalui menu attach di kiri bawah"
+      )
+      .replace("#record1#", "")
+      .replace("#record2#", "");
 
     setDisplayedMessage("");
     let currentIndex = 0;
@@ -38,7 +44,7 @@ export const AiChat = ({
       }
     }, 5);
 
-    if (isLastAIChat && message.includes("#record#")) {
+    if (isLastAIChat && message.includes("#record2#")) {
       submitData({ detail_laporan: message });
     }
 
