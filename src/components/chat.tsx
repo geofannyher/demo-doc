@@ -9,7 +9,6 @@ import { submitData } from "../lib/uploadData";
 export const AiChat = ({
   message,
   isLastAIChat,
-  loading,
 }: TChatProps & {
   isLastAIChat: boolean;
   // onFileUploadSuccess: ({ msg, fileUrl }: TUploadFileProps) => void;
@@ -28,10 +27,6 @@ export const AiChat = ({
       .replace("#upload#", "")
       .replace("#record#", ""); // Hapus string #upload#
 
-    if (loading && isLastAIChat) {
-      cleanedMessage += "\nSedang mengunggah file...";
-    }
-
     setDisplayedMessage("");
     let currentIndex = 0;
     const interval = setInterval(() => {
@@ -48,7 +43,7 @@ export const AiChat = ({
     }
 
     return () => clearInterval(interval);
-  }, [message, loading]);
+  }, [message]);
 
   return (
     <div className="flex justify-start py-2">

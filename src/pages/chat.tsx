@@ -45,7 +45,7 @@ const ChatPage: React.FC = () => {
         .insert([{ detail_laporan: aiMessage, bukti_laporan: fileUrl }]);
 
       if (error) {
-        console.error("Error uploading to Supabase:", error);
+        return api.error({ message: "error upload database" });
       }
 
       setMessages((prevMessages: any) => [
