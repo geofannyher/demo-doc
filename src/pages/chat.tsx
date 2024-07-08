@@ -13,7 +13,6 @@ import { supabase } from "../services/supabase/connection";
 import { TUploadFileProps } from "../utils/types/uploadFile.type";
 import { scrollToBottom } from "../lib/scrollSmooth";
 import axios from "axios";
-import { submitData } from "../lib/uploadData";
 // import { cleanString } from "../utils/cleanString";
 const ChatPage: React.FC = () => {
   const [messages, setMessages] = useState<IMessage[]>([]);
