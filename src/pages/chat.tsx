@@ -40,7 +40,7 @@ const ChatPage: React.FC = () => {
     if (msg && msg?.data?.data) {
       const aiMessage = msg?.data?.data;
 
-      const error = await supabase
+      const { error } = await supabase
         .from("laporan")
         .insert([{ detail_laporan: aiMessage, bukti_laporan: fileUrl }]);
 
