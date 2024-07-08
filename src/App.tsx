@@ -5,6 +5,7 @@ import LoginAdmin from "./pages/admin/login";
 import AdminLayout from "./pages/admin/admin.layout";
 import DashboardAdmin from "./pages/admin/dashboard";
 import AdminChat from "./pages/admin/admin.chat";
+import AdminHistory from "./pages/admin/admin.history";
 
 function App() {
   return (
@@ -17,6 +18,7 @@ function App() {
           <Route path="" element={<AdminLayout />}>
             <Route path="adminavatara" element={<DashboardAdmin />} />
             <Route path="history" element={<AdminChat />} />
+            <Route path="data" element={<AdminHistory />} />
           </Route>
         </Route>
       </Routes>

@@ -25,10 +25,7 @@ export const AiChat = ({
     let cleanedMessage = message.replace(/#record#.*?#\/record#/gs, "");
 
     cleanedMessage = cleanedMessage
-      .replace(
-        "#upload#",
-        "silahkan unggah berkas anda melalui menu attach di kiri bawah"
-      )
+      .replace("#upload#", "")
       .replace("#record#", ""); // Hapus string #upload#
 
     if (loading && isLastAIChat) {

@@ -21,6 +21,8 @@ const ChatPage: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [idUserSession, setId] = useState("");
   const session = getSession();
+  const [isLastAIChat, setIsLastAIChat] = useState(false); // State untuk mengelola status pesan AI terakhir
+  console.log(isLastAIChat);
 
   const getIdUser = async () => {
     const resses = await getIdSession();
@@ -36,20 +38,20 @@ const ChatPage: React.FC = () => {
     fileUrl,
   }: TUploadFileProps) => {
     if (msg && msg?.data?.data) {
-      const aiMessage = msg?.data?.data || "AI tidak merespon";
-      setMessages((prevMessages: any) => [
-        ...prevMessages,
-        { text: msg?.data?.data || "AI tidak merespon", sender: "ai" },
-      ]);
-      const { data, error } = await supabase
+      const aiMessage = msg?.data?.data;
+
+      const error = await supabase
         .from("laporan")
         .insert([{ detail_laporan: aiMessage, bukti_laporan: fileUrl }]);
 
       if (error) {
         console.error("Error uploading to Supabase:", error);
-      } else {
-        console.log("Uploaded to Supabase:", data);
       }
+
+      setMessages((prevMessages: any) => [
+        ...prevMessages,
+        { text: aiMessage, sender: "ai" },
+      ]);
     }
   };
 
@@ -72,8 +74,8 @@ const ChatPage: React.FC = () => {
   const handleForm = async (event: any) => {
     event.preventDefault();
 
-    const messageInput = event?.target[1]?.value.trim();
-    event.target[1].value = "";
+    const messageInput = event?.target[0]?.value.trim();
+    event.target[0].value = "";
     if (!messageInput) {
       return api.error({ message: "Kolom pesan tidak boleh kosong" });
     }
@@ -133,8 +135,7 @@ const ChatPage: React.FC = () => {
   useEffect(() => {
     scrollToBottom(messagesEndRef);
   }, [messages]);
-  const [isLastAIChat, setIsLastAIChat] = useState(false); // State untuk mengelola status pesan AI terakhir
-  console.log(isLastAIChat);
+
   useEffect(() => {
     if (messages.length > 0 && messages[messages.length - 1].sender === "ai") {
       setIsLastAIChat(true);
@@ -168,16 +169,20 @@ const ChatPage: React.FC = () => {
         model: "gpt-4o",
         is_rag: "false",
       });
-      handleFileUploadSuccess({
+      await handleFileUploadSuccess({
         fileUrl: response?.data?.secure_url,
         msg: chatResponse,
       });
       setLoading(false);
-      return api.success({ message: "Berkas Berhasil di unggah" });
     } catch (error) {
       setLoading(false);
-      return api.error({ message: "Berkas gagal di unggah" });
+      console.log(error);
     }
+  };
+  const shouldShowFileUpload = () => {
+    if (messages.length === 0) return false;
+    const lastMessage = messages[messages.length - 1];
+    return lastMessage.sender === "ai" && lastMessage.text.includes("#upload#");
   };
   return (
     <div className="flex h-screen flex-col bg-white">
@@ -190,6 +195,7 @@ const ChatPage: React.FC = () => {
               <UserChat message={message.text} />
             ) : (
               <AiChat
+                key={index}
                 message={message.text}
                 idUser={idUserSession}
                 loading={loading}
@@ -205,25 +211,28 @@ const ChatPage: React.FC = () => {
       <div className="container mx-auto w-full p-4 shadow-sm">
         <form onSubmit={handleForm}>
           <div className="relative flex gap-x-2 justify-between items-center">
-            <div className="w-[12%]">
-              <label
-                htmlFor="file-upload"
-                className="cursor-pointer font-semibold text-xs flex items-center gap-2"
-              >
-                <IoMdAttach
-                  size={5}
-                  className="bg-mainColor w-10 h-10 p-2 shadow-xl rounded-full text-white"
+            {shouldShowFileUpload() && (
+              <div className="w-[12%]">
+                <label
+                  htmlFor="file-upload"
+                  className="cursor-pointer font-semibold text-xs flex items-center gap-2"
+                >
+                  <IoMdAttach
+                    size={5}
+                    className="bg-mainColor w-10 h-10 p-2 shadow-xl rounded-full text-white"
+                  />
+                  <span className="hidden md:inline">upload lampiran</span>
+                </label>
+                <input
+                  id="file-upload"
+                  type="file"
+                  disabled={loading}
+                  onChange={handleFileUpload}
+                  className="hidden"
                 />
-                upload lampiran
-              </label>
-              <input
-                id="file-upload"
-                type="file"
-                disabled={loading}
-                onChange={handleFileUpload}
-                className="hidden"
-              />
-            </div>
+              </div>
+            )}
+
             <input
               type="text"
               id="message"
