@@ -23,7 +23,8 @@ export const AiChat = ({
     // Hapus bagian JSON yang dimulai dengan #record# dan diakhiri dengan #/record#
     let cleanedMessage = message
       .replace(/#record1#.*?#\/record1#/gs, "")
-      .replace(/#record2#.*?#\/record2#/gs, "");
+      .replace(/#record2#.*?#\/record2#/gs, "")
+      .replace("Berikut adalah data laporan Anda dalam format JSON:", "");
 
     cleanedMessage = cleanedMessage
       .replace(
