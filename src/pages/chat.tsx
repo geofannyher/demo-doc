@@ -9,10 +9,10 @@ import { getIdSession } from "../services/supabase/session.service";
 import { chatRes } from "../services/api/chat.services";
 import notificationSound from "../assets/notif.mp3";
 import { getSession } from "../shared/Session";
-import { supabase } from "../services/supabase/connection";
 import { TUploadFileProps } from "../utils/types/uploadFile.type";
 import { scrollToBottom } from "../lib/scrollSmooth";
 import axios from "axios";
+import { submitData } from "../lib/uploadData";
 // import { cleanString } from "../utils/cleanString";
 const ChatPage: React.FC = () => {
   const [messages, setMessages] = useState<IMessage[]>([]);
@@ -40,18 +40,30 @@ const ChatPage: React.FC = () => {
     fileUrl,
   }: TUploadFileProps) => {
     if (msg && msg?.data?.data) {
-      const aiMessage = msg?.data?.data;
-      const { error } = await supabase
-        .from("laporan")
-        .insert([{ detail_laporan: aiMessage, bukti_laporan: fileUrl }]);
-
-      if (error) {
-        return api.error({ message: "error upload database" });
+      const jsonString = msg?.data?.data.match(
+        /#record1#(.*?)#\/record1#/s
+      )?.[1];
+      if (jsonString) {
+        try {
+          const jsonData = JSON.parse(jsonString);
+          const dataToSubmit: any = {
+            tiket: jsonData.Tiket,
+            kategori: jsonData.Kategori,
+            nama_pelapor: jsonData["Nama Pelapor"],
+            obyek_terlapor: jsonData["Obyek Terlapor"],
+            waktu_kejadian: jsonData["Waktu Kejadian"],
+            keluhan: jsonData.Keluhan,
+            bukti_laporan: fileUrl,
+          };
+          submitData(dataToSubmit);
+        } catch (error) {
+          console.error("Error parsing JSON:", error);
+        }
       }
 
       setMessages((prevMessages: any) => [
         ...prevMessages,
-        { text: aiMessage, sender: "ai" },
+        { text: msg?.data?.data, sender: "ai" },
       ]);
     }
   };

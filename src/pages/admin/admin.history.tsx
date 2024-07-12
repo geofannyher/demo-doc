@@ -1,59 +1,42 @@
 import { useEffect, useState } from "react";
 import { supabase } from "../../services/supabase/connection";
 import { LoadingOutlined } from "@ant-design/icons";
-import { Modal } from "antd";
-import Markdown from "react-markdown";
-import remarkGfm from "remark-gfm";
 
 interface IReport {
+  tiket: string;
+  kategori: string;
+  nama_pelapor: string;
+  obyek_terlapor: string;
+  waktu_kejadian: string;
+  keluhan: string;
   bukti_laporan: string;
-  detail_laporan: string;
 }
 
 const AdminHistory = () => {
   const [reports, setReports] = useState<IReport[]>([]);
   const [loading, setLoading] = useState(true);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [data, setData] = useState("");
-  const [displayedMessage, setDisplayedMessage] = useState("");
+
   const fetchReports = async () => {
     setLoading(true);
     const { data, error } = await supabase
       .from("laporan")
-      .select("detail_laporan, bukti_laporan");
+      .select(
+        "tiket, kategori, nama_pelapor, obyek_terlapor, waktu_kejadian, keluhan, bukti_laporan"
+      );
 
     if (error) {
       console.error("Error fetching reports:", error);
       setLoading(false);
     } else {
-      setLoading(false);
       setReports(data);
+      setLoading(false);
     }
-    setLoading(false);
   };
 
   useEffect(() => {
     fetchReports();
   }, []);
-  const handleOk = () => {
-    setIsModalOpen(false);
-  };
 
-  const handleCancel = () => {
-    setIsModalOpen(false);
-  };
-
-  useEffect(() => {
-    if (typeof data !== "string") {
-      return;
-    }
-
-    const cleanedMessage = data
-      .replace("#record#", "")
-      .replace("#/record#", ""); // Hapus string #upload#
-
-    setDisplayedMessage(cleanedMessage);
-  }, [data, loading]);
   return (
     <div className="container mx-auto m-10">
       <div className="relative overflow-x-auto rounded-lg">
@@ -73,13 +56,25 @@ const AdminHistory = () => {
                   No
                 </th>
                 <th scope="col" className="px-6 py-3">
-                  Detail Laporan
+                  Tiket
+                </th>
+                <th scope="col" className="px-6 py-3">
+                  Kategori
+                </th>
+                <th scope="col" className="px-6 py-3">
+                  Nama Pelapor
+                </th>
+                <th scope="col" className="px-6 py-3">
+                  Obyek Terlapor
+                </th>
+                <th scope="col" className="px-6 py-3">
+                  Waktu Kejadian
+                </th>
+                <th scope="col" className="px-6 py-3">
+                  Keluhan
                 </th>
                 <th scope="col" className="px-6 py-3">
                   Bukti File
-                </th>
-                <th scope="col" className="px-6 py-3">
-                  Action
                 </th>
               </tr>
             </thead>
@@ -92,11 +87,12 @@ const AdminHistory = () => {
                   <th className="px-3 py-4 font-medium w-20 whitespace-nowrap">
                     {index + 1}
                   </th>
-                  <th>
-                    <div className="overflow-hidden whitespace-nowrap overflow-ellipsis w-96 text-sm font-medium">
-                      {report.detail_laporan}
-                    </div>
-                  </th>
+                  <td className="px-6 py-4">{report.tiket}</td>
+                  <td className="px-6 py-4">{report.kategori}</td>
+                  <td className="px-6 py-4">{report.nama_pelapor}</td>
+                  <td className="px-6 py-4">{report.obyek_terlapor}</td>
+                  <td className="px-6 py-4">{report.waktu_kejadian}</td>
+                  <td className="px-6 py-4">{report.keluhan}</td>
                   <td className="px-6 py-4">
                     <div className="overflow-hidden whitespace-nowrap overflow-ellipsis w-72">
                       {report?.bukti_laporan ? (
@@ -110,42 +106,11 @@ const AdminHistory = () => {
                       )}
                     </div>
                   </td>
-                  <td>
-                    <button
-                      onClick={() => {
-                        setIsModalOpen(true);
-                        setData(report?.detail_laporan);
-                      }}
-                      className=" bg-mainColor cursor-pointer hover:bg-red-500 transition duration-500 text-white px-4 py-2 rounded-full shadow-lg"
-                    >
-                      Detail
-                    </button>
-                  </td>
                 </tr>
               ))}
             </tbody>
           </table>
         )}
-        <Modal
-          title="Detail Laporan"
-          open={isModalOpen}
-          footer={false}
-          onOk={handleOk}
-          onCancel={handleCancel}
-        >
-          <div style={{ whiteSpace: "pre-line" }}>
-            <Markdown
-              components={{
-                a: ({ node, ...props }) => (
-                  <a {...props} style={{ color: "blue" }} />
-                ),
-              }}
-              remarkPlugins={[remarkGfm]}
-            >
-              {displayedMessage}
-            </Markdown>
-          </div>
-        </Modal>
       </div>
     </div>
   );

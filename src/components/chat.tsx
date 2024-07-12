@@ -46,7 +46,23 @@ export const AiChat = ({
     }, 5);
 
     if (isLastAIChat && message.includes("#record2#")) {
-      submitData({ detail_laporan: message });
+      const jsonString = message.match(/#record2#(.*?)#\/record2#/s)?.[1];
+      if (jsonString) {
+        try {
+          const jsonData = JSON.parse(jsonString);
+          const dataToSubmit: any = {
+            tiket: jsonData.Tiket,
+            kategori: jsonData.Kategori,
+            nama_pelapor: jsonData["Nama Pelapor"],
+            obyek_terlapor: jsonData["Obyek Terlapor"],
+            waktu_kejadian: jsonData["Waktu Kejadian"],
+            keluhan: jsonData.Keluhan,
+          };
+          submitData(dataToSubmit);
+        } catch (error) {
+          console.error("Error parsing JSON:", error);
+        }
+      }
     }
 
     return () => clearInterval(interval);
