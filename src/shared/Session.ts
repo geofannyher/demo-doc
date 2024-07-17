@@ -1,11 +1,11 @@
 export const saveSession = (token: string) => {
-  localStorage.setItem("idLapor", token);
+  localStorage.setItem("idiknchat", token);
 };
 
 export const getSession = () => {
-  return localStorage.getItem("idLapor");
+  return localStorage.getItem("idiknchat");
 };
 
 export const clearSession = () => {
-  localStorage.removeItem("idLapor");
+  localStorage.removeItem("idiknchat");
 };

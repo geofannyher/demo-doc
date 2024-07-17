@@ -15,7 +15,7 @@ const Navbar = () => {
                   />
                 </div>
                 <div className="flex flex-col text-white">
-                  <h1 className="font-semibold">LAPOR!</h1>
+                  <h1 className="font-semibold">IKN</h1>
                 </div>
               </div>
             </div>

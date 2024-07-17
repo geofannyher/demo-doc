@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { IoIosSend, IoMdAttach } from "react-icons/io";
+import { IoIosSend } from "react-icons/io";
 import { notification } from "antd";
 import { IMessage } from "../utils/interface/chat.interface";
 import { AiChat, UserChat } from "../components/chat";
@@ -9,11 +9,7 @@ import { getIdSession } from "../services/supabase/session.service";
 import { chatRes } from "../services/api/chat.services";
 import notificationSound from "../assets/notif.mp3";
 import { getSession } from "../shared/Session";
-import { TUploadFileProps } from "../utils/types/uploadFile.type";
 import { scrollToBottom } from "../lib/scrollSmooth";
-import axios from "axios";
-import { submitData } from "../lib/uploadData";
-// import { cleanString } from "../utils/cleanString";
 const ChatPage: React.FC = () => {
   const [messages, setMessages] = useState<IMessage[]>([]);
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -21,50 +17,13 @@ const ChatPage: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [idUserSession, setId] = useState("");
   const session = getSession();
-  const [loading, setLoading] = useState(false);
-
-  const [isLastAIChat, setIsLastAIChat] = useState(false); // State untuk mengelola status pesan AI terakhir
-  console.log(isLastAIChat);
 
   const getIdUser = async () => {
     const resses = await getIdSession();
     if (resses?.status == 200) {
-      setId(resses?.data?.uuid);
+      setId(resses?.data?.uuid_ikn);
     } else {
       return api.error({ message: "Gagal mendapatkan id user" });
-    }
-  };
-
-  const handleFileUploadSuccess = async ({
-    msg,
-    fileUrl,
-  }: TUploadFileProps) => {
-    if (msg && msg?.data?.data) {
-      const jsonString = msg?.data?.data.match(
-        /#record1#(.*?)#\/record1#/s
-      )?.[1];
-      if (jsonString) {
-        try {
-          const jsonData = JSON.parse(jsonString);
-          const dataToSubmit: any = {
-            tiket: jsonData.Tiket,
-            kategori: jsonData.Kategori,
-            nama_pelapor: jsonData["Nama Pelapor"],
-            obyek_terlapor: jsonData["Obyek Terlapor"],
-            waktu_kejadian: jsonData["Waktu Kejadian"],
-            keluhan: jsonData.Keluhan,
-            bukti_laporan: fileUrl,
-          };
-          submitData(dataToSubmit);
-        } catch (error) {
-          console.error("Error parsing JSON:", error);
-        }
-      }
-
-      setMessages((prevMessages: any) => [
-        ...prevMessages,
-        { text: msg?.data?.data, sender: "ai" },
-      ]);
     }
   };
 
@@ -72,7 +31,7 @@ const ChatPage: React.FC = () => {
     setTimeout(() => {
       setMessages([
         {
-          text: "Halo, Selamat datang di Layanan Aspirasi dan Pengaduan Online Rakyat. Silahkan sampaikan laporan anda.",
+          text: "Hai, Aku Nara, siap membantumu mengenal lebih dekat tentang Ibu Kota Nusantara 😊.",
           sender: "ai",
         },
       ]);
@@ -89,11 +48,7 @@ const ChatPage: React.FC = () => {
 
     let messageInput: any;
 
-    if (shouldShowFileUpload()) {
-      messageInput = event?.target[1]?.value.trim();
-    } else {
-      messageInput = event?.target[0]?.value.trim();
-    }
+    messageInput = event?.target[0]?.value.trim();
 
     if (!messageInput) {
       return api.error({ message: "Kolom pesan tidak boleh kosong" });
@@ -109,12 +64,10 @@ const ChatPage: React.FC = () => {
 
     const audio = new Audio(notificationSound);
     audio.play();
-
     const resNew: any = await chatRes({
       message: messageInput,
-      star: "ai_lapor",
+      star: "nara_ikn",
       id: idUserSession,
-      // id: "dev3",
       model: "gpt-4o",
       is_rag: "false",
     });
@@ -158,54 +111,6 @@ const ChatPage: React.FC = () => {
     scrollToBottom(messagesEndRef);
   }, [messages]);
 
-  useEffect(() => {
-    if (messages.length > 0 && messages[messages.length - 1].sender === "ai") {
-      setIsLastAIChat(true);
-    } else {
-      setIsLastAIChat(false);
-    }
-  }, [messages]);
-
-  const handleFileUpload = async (
-    event: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    const file = event.target.files?.[0];
-
-    if (!file) return;
-
-    if (!idUserSession) return api.error({ message: "gagal mendapatkan id" });
-    const formData = new FormData();
-    formData.append("file", file);
-    formData.append("upload_preset", "demolapor");
-    setLoading(true);
-    try {
-      const response = await axios.post(
-        "https://api.cloudinary.com/v1_1/dp8ita8x5/upload",
-        formData
-      );
-      const chatResponse = await chatRes({
-        message: "saya sudah upload",
-        star: "ai_lapor",
-        id: idUserSession,
-        // id: "dev3",
-        model: "gpt-4o",
-        is_rag: "false",
-      });
-      await handleFileUploadSuccess({
-        fileUrl: response?.data?.secure_url,
-        msg: chatResponse,
-      });
-      setLoading(false);
-    } catch (error) {
-      setLoading(false);
-      console.log(error);
-    }
-  };
-  const shouldShowFileUpload = () => {
-    if (messages.length === 0) return false;
-    const lastMessage = messages[messages.length - 1];
-    return lastMessage.sender === "ai" && lastMessage.text.includes("#upload#");
-  };
   return (
     <div className="flex h-screen flex-col bg-white">
       <Navbar />
@@ -220,7 +125,7 @@ const ChatPage: React.FC = () => {
                 key={index}
                 message={message.text}
                 idUser={idUserSession}
-                loading={loading}
+                loading={isLoading}
                 isLastAIChat={index === messages.length - 1}
               />
             )}
@@ -233,39 +138,17 @@ const ChatPage: React.FC = () => {
       <div className="container mx-auto w-full p-4 shadow-sm">
         <form onSubmit={handleForm}>
           <div className="relative flex gap-x-2 justify-between items-center">
-            {shouldShowFileUpload() && (
-              <div className="w-[12%]">
-                <label
-                  htmlFor="file-upload"
-                  className="cursor-pointer font-semibold text-xs flex items-center gap-2"
-                >
-                  <IoMdAttach
-                    size={5}
-                    className="bg-mainColor w-10 h-10 p-2 shadow-xl rounded-full text-white"
-                  />
-                  <span className="hidden md:inline">upload lampiran</span>
-                </label>
-                <input
-                  id="file-upload"
-                  type="file"
-                  disabled={loading}
-                  onChange={handleFileUpload}
-                  className="hidden"
-                />
-              </div>
-            )}
-
             <input
               type="text"
               id="message"
-              disabled={loading}
+              disabled={isLoading}
               name="message"
               className="block shadow-md w-full pr-20 rounded-full border border-gray-300 bg-gray-50 p-4 text-sm text-gray-900"
               placeholder="Masukkan pesan anda.."
             />
             <button
               type="submit"
-              disabled={loading}
+              disabled={isLoading}
               className="rounded-full bg-mainColor px-4 py-4 text-sm font-medium text-white shadow-md transition duration-300 hover:bg-hoverBtn"
             >
               <IoIosSend size={15} />

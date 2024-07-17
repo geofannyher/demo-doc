@@ -3,15 +3,11 @@ import ai from "../assets/image.jpeg";
 import Markdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { useEffect, useState } from "react";
-// import { TUploadFileProps } from "../utils/types/uploadFile.type";
-import { submitData } from "../lib/uploadData";
 
 export const AiChat = ({
   message,
-  isLastAIChat,
 }: TChatProps & {
   isLastAIChat: boolean;
-  // onFileUploadSuccess: ({ msg, fileUrl }: TUploadFileProps) => void;
 }) => {
   const [displayedMessage, setDisplayedMessage] = useState("");
 
@@ -20,50 +16,16 @@ export const AiChat = ({
       return;
     }
 
-    // Hapus bagian JSON yang dimulai dengan #record# dan diakhiri dengan #/record#
-    let cleanedMessage = message
-      .replace(/#record1#.*?#\/record1#/gs, "")
-      .replace(/#record2#.*?#\/record2#/gs, "")
-      .replace("Berikut adalah data laporan Anda dalam format JSON:", "");
-
-    cleanedMessage = cleanedMessage
-      .replace(
-        "#upload#",
-        "silahkan unggah berkas anda melalui menu attach di kiri bawah"
-      )
-      .replace("#record1#", "")
-      .replace("#record2#", "");
-
     setDisplayedMessage("");
     let currentIndex = 0;
     const interval = setInterval(() => {
-      if (currentIndex <= cleanedMessage.length) {
-        setDisplayedMessage(cleanedMessage.substring(0, currentIndex));
+      if (currentIndex <= message.length) {
+        setDisplayedMessage(message.substring(0, currentIndex));
         currentIndex++;
       } else {
         clearInterval(interval);
       }
     }, 5);
-
-    if (isLastAIChat && message.includes("#record2#")) {
-      const jsonString = message.match(/#record2#(.*?)#\/record2#/s)?.[1];
-      if (jsonString) {
-        try {
-          const jsonData = JSON.parse(jsonString);
-          const dataToSubmit: any = {
-            tiket: jsonData.Tiket,
-            kategori: jsonData.Kategori,
-            nama_pelapor: jsonData["Nama Pelapor"],
-            obyek_terlapor: jsonData["Obyek Terlapor"],
-            waktu_kejadian: jsonData["Waktu Kejadian"],
-            keluhan: jsonData.Keluhan,
-          };
-          submitData(dataToSubmit);
-        } catch (error) {
-          console.error("Error parsing JSON:", error);
-        }
-      }
-    }
 
     return () => clearInterval(interval);
   }, [message]);
