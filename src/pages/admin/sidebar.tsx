@@ -20,21 +20,21 @@ const Sidebar = () => {
         </svg>
       ),
     },
-    {
-      to: "/data",
-      name: "Admin Data",
-      icon: (
-        <svg
-          className="w-5 h-5"
-          viewBox="0 0 24 24"
-          fill="currentColor"
-          xmlns="http://www.w3.org/2000/svg"
-        >
-          <path d="M21 4H7C5.346 4 4 5.346 4 7v10c0 1.654 1.346 3 3 3h14v-2H7c-.551 0-1-.449-1-1V7c0-.551.449-1 1-1h14V4zM3 6H1v14c0 1.654 1.346 3 3 3h16v-2H4c-.551 0-1-.449-1-1V6z" />
-          <path d="M9 8h10v2H9zM9 12h10v2H9zM9 16h10v2H9z" />
-        </svg>
-      ),
-    },
+    // {
+    //   to: "/data",
+    //   name: "Admin Data",
+    //   icon: (
+    //     <svg
+    //       className="w-5 h-5"
+    //       viewBox="0 0 24 24"
+    //       fill="currentColor"
+    //       xmlns="http://www.w3.org/2000/svg"
+    //     >
+    //       <path d="M21 4H7C5.346 4 4 5.346 4 7v10c0 1.654 1.346 3 3 3h14v-2H7c-.551 0-1-.449-1-1V7c0-.551.449-1 1-1h14V4zM3 6H1v14c0 1.654 1.346 3 3 3h16v-2H4c-.551 0-1-.449-1-1V6z" />
+    //       <path d="M9 8h10v2H9zM9 12h10v2H9zM9 16h10v2H9z" />
+    //     </svg>
+    //   ),
+    // },
     {
       to: "/history",
       name: "Admin Chat",
