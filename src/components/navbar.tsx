@@ -1,4 +1,4 @@
-import ai from "../assets/image.jpeg";
+import ai from "../assets/image.jpg";
 
 const Navbar = () => {
   return (
@@ -15,7 +15,7 @@ const Navbar = () => {
                   />
                 </div>
                 <div className="flex flex-col text-white">
-                  <h1 className="font-semibold">IKN</h1>
+                  <h1 className="font-semibold">Nara dari IKN Nusantara</h1>
                 </div>
               </div>
             </div>
