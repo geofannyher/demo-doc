@@ -52,7 +52,7 @@ const Sidebar = () => {
   ];
 
   return (
-    <div className="bg-mainColor w-20 p-2 flex flex-col items-center justify-between h-screen text-white">
+    <div className="bg-mainColor w-20 p-2 flex flex-col items-center justify-between h-[100dvh] text-white">
       <div className="py-4">
         <h1
           className="font-bold cursor-pointer hover:text-gray-300 duration-300 transition text-sm"

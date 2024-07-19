@@ -117,7 +117,7 @@ const ChatPage: React.FC = () => {
   }, [messages]);
 
   return (
-    <div className="flex h-screen flex-col bg-white">
+    <div className="flex h-[100dvh] flex-col bg-white">
       <Navbar />
       {context}
       <div className="container hide-scrollbar mx-auto flex-1 space-y-2 overflow-y-auto p-4">

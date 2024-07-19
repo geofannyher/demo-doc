@@ -3,7 +3,7 @@ import Sidebar from "./sidebar";
 
 const AdminLayout = () => {
   return (
-    <div className="flex h-screen overflow-hidden">
+    <div className="flex h-[100dvh] overflow-hidden">
       <Sidebar />
       <div className="flex-1 overflow-y-auto bg-white">
         <Outlet />
