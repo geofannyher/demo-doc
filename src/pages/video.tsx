@@ -7,11 +7,12 @@ const VideoPlayerr = () => {
   };
   return (
     <div>
-      <video autoPlay muted controls>
+      <video ref={videoRef} onTimeUpdate={handleChange} autoPlay muted controls>
         <iframe
-          src="https://drive.google.com/uc?id=11wGtvBt5LPmM_9y_aidE62R87V6PXWsx"
-          ref={videoRef}
-          onTimeUpdate={handleChange}
+          src="https://drive.google.com/file/d/11wGtvBt5LPmM_9y_aidE62R87V6PXWsx/preview"
+          width="640"
+          height="480"
+          allow="autoplay"
         ></iframe>
         Your browser does not support the video tag.
       </video>
