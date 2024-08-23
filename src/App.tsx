@@ -5,6 +5,7 @@ import LoginAdmin from "./pages/admin/login";
 import AdminLayout from "./pages/admin/admin.layout";
 import DashboardAdmin from "./pages/admin/dashboard";
 import AdminChat from "./pages/admin/admin.chat";
+import VideoPlayerr from "./pages/video";
 // import AdminHistory from "./pages/admin/admin.history";
 
 function App() {
@@ -14,6 +15,7 @@ function App() {
         {/* <Route path="*" element={<MaintenancePage />} /> */}
         <Route path="/" element={<MainLayout />}>
           <Route index element={<ChatPage />} />
+          <Route path="/video" element={<VideoPlayerr />} />
           <Route path="/adminlogin" element={<LoginAdmin />} />
           <Route path="" element={<AdminLayout />}>
             <Route path="adminavatara" element={<DashboardAdmin />} />
