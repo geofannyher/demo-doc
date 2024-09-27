@@ -1,5 +1,4 @@
 import { TChatProps } from "../utils/types/chat.type";
-import ai from "../assets/image.jpg";
 import Markdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { useEffect, useState } from "react";
@@ -35,7 +34,7 @@ export const AiChat = ({
       <div className="flex items-start">
         <div className="flex gap-2 items-start ">
           <img
-            src={ai}
+            src={"https://placehold.co/400"}
             className="h-10 w-10 items-center justify-center rounded-full object-cover"
           />
           <div
@@ -75,7 +74,7 @@ export const AdminHIstoryChat = ({ message }: TChatProps) => {
       <div className="flex items-start">
         <div className="flex gap-2 items-start">
           <img
-            src={ai}
+            src={"https://placehold.co/400"}
             className="h-10 w-10 items-center justify-center rounded-full object-cover"
           />
           <div

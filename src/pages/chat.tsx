@@ -112,29 +112,29 @@ const ChatPage: React.FC = () => {
   useEffect(() => {
     scrollToBottom(messagesEndRef);
   }, [messages]);
-  useEffect(() => {
-    if (idUserSession) {
-      fetchChatHistory(); // Load chat history after getting the session ID
-    }
-  }, [idUserSession]);
+  // useEffect(() => {
+  //   if (idUserSession) {
+  //     fetchChatHistory(); // Load chat history after getting the session ID
+  //   }
+  // }, [idUserSession]);
 
   // Fetch chat history from Supabase
-  const fetchChatHistory = async () => {
-    if (idUserSession) {
-      const { data, error } = await supabase
-        .from("chat_doc")
-        .select("text, sender")
-        .eq("localid", idUserSession);
+  // const fetchChatHistory = async () => {
+  //   if (idUserSession) {
+  //     const { data, error } = await supabase
+  //       .from("chat_doc")
+  //       .select("text, sender")
+  //       .eq("localid", idUserSession);
 
-      if (error) {
-        api.error({ message: "Gagal mengambil riwayat chat" });
-      } else {
-        setMessages(
-          data.map((item: any) => ({ text: item.text, sender: item.sender }))
-        );
-      }
-    }
-  };
+  //     if (error) {
+  //       api.error({ message: "Gagal mengambil riwayat chat" });
+  //     } else {
+  //       setMessages(
+  //         data.map((item: any) => ({ text: item.text, sender: item.sender }))
+  //       );
+  //     }
+  //   }
+  // };
   return (
     <div className="flex h-[100dvh] flex-col bg-white">
       <Navbar />
