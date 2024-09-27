@@ -24,7 +24,7 @@ const ChatPage: React.FC = () => {
   const getIdUser = async () => {
     const resses = await getIdSession();
     if (resses?.status == 200) {
-      setId(resses?.data?.uuid_ikn);
+      setId(resses?.data?.uuid_doc);
     } else {
       return api.error({ message: "Gagal mendapatkan id user" });
     }
@@ -34,7 +34,7 @@ const ChatPage: React.FC = () => {
     setTimeout(() => {
       setMessages([
         {
-          text: "Hai, Aku Nara, siap membantumu mengenal lebih dekat tentang Ibu Kota Nusantara 😊.",
+          text: "Hai 😊.",
           sender: "ai",
         },
       ]);
@@ -56,7 +56,6 @@ const ChatPage: React.FC = () => {
     if (!messageInput) {
       return api.error({ message: "Kolom pesan tidak boleh kosong" });
     }
-    console.log(messageInput);
     event.target[0].value = "";
     event.target[1].value = "";
 
@@ -69,7 +68,7 @@ const ChatPage: React.FC = () => {
     audio.play();
     const resNew: any = await chatRes({
       message: messageInput,
-      star: "nara_ikn",
+      star: "doc_chat",
       id: idUserSession,
       model: "gpt-4o",
       is_rag: "false",
@@ -77,20 +76,18 @@ const ChatPage: React.FC = () => {
 
     const res = await axios.post(import.meta.env.VITE_APP_CHATT + "history", {
       id: idUserSession,
-      star: "nara_ikn",
+      star: "doc_chat",
     });
 
     const cleanedKonteks = cleanString(res?.data?.data?.history[1]?.content);
 
-    await supabase.from("chat_ikn").upsert([
+    await supabase.from("chat_doc").upsert([
       {
-        idref: 1,
         text: messageInput,
         sender: "user",
         localid: idUserSession,
       },
       {
-        idref: 1,
         text: resNew?.data?.data || "AI tidak merespon",
         sender: "ai",
         konteks: cleanedKonteks,
@@ -115,7 +112,29 @@ const ChatPage: React.FC = () => {
   useEffect(() => {
     scrollToBottom(messagesEndRef);
   }, [messages]);
+  useEffect(() => {
+    if (idUserSession) {
+      fetchChatHistory(); // Load chat history after getting the session ID
+    }
+  }, [idUserSession]);
 
+  // Fetch chat history from Supabase
+  const fetchChatHistory = async () => {
+    if (idUserSession) {
+      const { data, error } = await supabase
+        .from("chat_doc")
+        .select("text, sender")
+        .eq("localid", idUserSession);
+
+      if (error) {
+        api.error({ message: "Gagal mengambil riwayat chat" });
+      } else {
+        setMessages(
+          data.map((item: any) => ({ text: item.text, sender: item.sender }))
+        );
+      }
+    }
+  };
   return (
     <div className="flex h-[100dvh] flex-col bg-white">
       <Navbar />

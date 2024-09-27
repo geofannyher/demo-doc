@@ -2,7 +2,7 @@ import { supabase } from "./connection";
 
 export const getIdSession = async () => {
   try {
-    const data = await supabase.from("user").select("uuid_ikn").single();
+    const data = await supabase.from("user").select("uuid_doc").single();
 
     if (data) {
       return data;

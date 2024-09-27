@@ -15,7 +15,7 @@ const Navbar = () => {
                   />
                 </div>
                 <div className="flex flex-col text-white">
-                  <h1 className="font-semibold">Nara dari IKN Nusantara</h1>
+                  <h1 className="font-semibold">Ai</h1>
                 </div>
               </div>
             </div>
