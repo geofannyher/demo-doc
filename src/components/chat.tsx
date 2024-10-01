@@ -2,6 +2,7 @@ import { TChatProps } from "../utils/types/chat.type";
 import Markdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { useEffect, useState } from "react";
+import img from "/pp.jpg";
 
 export const AiChat = ({
   message,
@@ -34,7 +35,7 @@ export const AiChat = ({
       <div className="flex items-start">
         <div className="flex gap-2 items-start ">
           <img
-            src={"https://placehold.co/400"}
+            src={img}
             className="h-10 w-10 items-center justify-center rounded-full object-cover"
           />
           <div

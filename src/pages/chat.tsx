@@ -34,7 +34,7 @@ const ChatPage: React.FC = () => {
     setTimeout(() => {
       setMessages([
         {
-          text: "Hai 😊.",
+          text: "Halo, saya siap untuk membantu menganalisis dan menjelaskan dokumen perjanjian anda. Apakah ada yang bisa saya bantu?",
           sender: "ai",
         },
       ]);

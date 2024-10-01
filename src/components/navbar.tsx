@@ -1,3 +1,4 @@
+import img from "/pp.jpg";
 const Navbar = () => {
   return (
     <div className="bg-mainColor rounded-br-xl rounded-bl-xl shadow-md">
@@ -8,12 +9,12 @@ const Navbar = () => {
               <div className="flex items-center gap-2">
                 <div className="relative flex">
                   <img
-                    src={"https://placehold.co/400"}
+                    src={img}
                     className="h-10 w-10 items-center justify-center rounded-full object-cover"
                   />
                 </div>
                 <div className="flex flex-col text-white">
-                  <h1 className="font-semibold">Ai</h1>
+                  <h1 className="font-semibold">Document AI</h1>
                 </div>
               </div>
             </div>
