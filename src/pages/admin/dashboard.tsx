@@ -17,7 +17,7 @@ const DashboardAdmin = () => {
 
   const getSes = async () => {
     const res = await getIdSession();
-    setId(res?.data?.uuid_ikn);
+    setId(res?.data?.uuid_doc);
   };
 
   const switchID = async () => {
