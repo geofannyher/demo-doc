@@ -3,9 +3,8 @@ import { supabase } from "../supabase/connection";
 export const getHistoryChats = async () => {
   try {
     const data = await supabase
-      .from("chat_ikn")
+      .from("chat_doc")
       .select("*")
-      .eq("idref", 1)
       .order("created_at", { ascending: true });
     if (data) {
       return data;
